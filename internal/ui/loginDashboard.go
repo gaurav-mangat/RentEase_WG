@@ -1,8 +1,11 @@
 package ui
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"rentease/pkg/utils"
+	"rentease/pkg/validation"
 )
 
 // LoginDashboard manages user login attempts with options to retry, sign up, or exit.
@@ -18,9 +21,12 @@ func (ui *UI) LoginDashboard() {
 		fmt.Println("\033[1;31m                          LOG IN                                \033[0m") // Red bold
 		fmt.Println("\033[1;36m----------------------------------------------------------------\033[0m")
 
+		// Clear the input buffer
+		reader := bufio.NewReader(os.Stdin)
+
 		for {
 			username = utils.ReadInput("\n             Enter username: ")
-			if utils.IsValidInput2(username) {
+			if validation.IsSingleWordUsername(username) {
 				break
 			}
 		}
@@ -30,24 +36,31 @@ func (ui *UI) LoginDashboard() {
 
 		fmt.Println()
 
-		// Check credentials (this part needs to be implemented)
-		loginSuccessful, _ := ui.userService.Login(username, password) // Placeholder for actual authentication logic
+		// Check credentials
+		loginSuccessful, _ := ui.UserService.Login(username, password)
 
 		if loginSuccessful {
 			// Successful login
-			fmt.Println("\033[1;32mLogin successful!\033[0m") // Green
+			fmt.Println("\033[1;32mLogin successful!\n\n\033[0m") // Green
 
 			//Checking for admin
-			user, err := ui.userService.FindByUsername(utils.ActiveUser)
+			user, err := ui.UserService.FindByUsername(utils.ActiveUser)
 			if err != nil {
 				fmt.Println("\033[1;31mError finding user :\033[0m", err)
 			}
+
+			// It contains the active user struct
+			utils.ActiveUserobject = user
+
 			if user.Role == "Admin" {
 				ui.AdminDashboard()
+				return
 			} else {
-				ui.onLoginDashboard(username)
+				ui.onLoginDashboard()
+				return
 			}
-			ui.AppDashboard()
+			// ye check karna hai
+
 		} else {
 			// Failed login, decrement attempts left
 			attemptsLeft--
@@ -64,10 +77,10 @@ func (ui *UI) LoginDashboard() {
 
 			var choice int
 			fmt.Print("Enter your choice: ")
-			_, err := fmt.Scan(&choice)
+			_, err := fmt.Fscanf(reader, "%d\n", &choice) // Use Fscanf with "\n" to clear the buffer
 			if err != nil {
 				fmt.Println("\033[1;31mInvalid input.\033[0m")
-				return
+				continue // Continue the loop to retry input
 			}
 
 			switch choice {
@@ -76,7 +89,7 @@ func (ui *UI) LoginDashboard() {
 				continue
 			case 2:
 				// Call the SignUp function
-				//SignUp()
+				ui.SignUpDashboard()
 				return // Return to avoid retrying after sign up
 			case 3:
 				// Exit
@@ -89,4 +102,5 @@ func (ui *UI) LoginDashboard() {
 			}
 		}
 	}
+
 }

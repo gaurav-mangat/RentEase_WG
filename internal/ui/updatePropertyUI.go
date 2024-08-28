@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
-	"strings"
 )
 
 // UpdatePropertyUI handles the property update user interface.
@@ -15,160 +14,16 @@ func (ui *UI) UpdatePropertyUI(property entities.Property) {
 	updatedProperty := property
 
 	// Update Title
-	newTitle := utils.ReadInput("Current Title: " + property.Title + "\nEnter new title (leave blank to skip): ")
-	if newTitle != "" {
-		updatedProperty.Title = newTitle
-	}
+	ui.updateTitle(&updatedProperty)
 
 	// Update Address
-	fmt.Printf("Current Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
-	newArea := utils.ReadInput("Enter new area (leave blank to skip): ")
-	if newArea != "" {
-		updatedProperty.Address.Area = newArea
-	}
-
-	newCity := utils.ReadInput("Enter new city (leave blank to skip): ")
-	if newCity != "" {
-		updatedProperty.Address.City = newCity
-	}
-
-	newState := utils.ReadInput("Enter new state (leave blank to skip): ")
-	if newState != "" {
-		updatedProperty.Address.State = newState
-	}
-
-	newPincode := utils.ReadInput("Enter new pincode (leave blank to skip): ")
-	if newPincode != "" {
-		var pincode int
-		_, err := fmt.Sscanf(newPincode, "%d", &pincode)
-		if err == nil {
-			updatedProperty.Address.Pincode = pincode
-		} else {
-			fmt.Println("\033[1;31mInvalid pincode format.\033[0m") // Red
-			return
-		}
-	}
+	ui.updateAddress(&updatedProperty)
 
 	// Update Rent Amount
-	fmt.Println("Current expected rent amount:", property.RentAmount)
-	newRentAmountStr := utils.ReadInput("Enter new expected rent amount (leave blank to skip): ")
-	if newRentAmountStr != "" {
-		var newRentAmount float64
-		_, err := fmt.Sscanf(newRentAmountStr, "%f", &newRentAmount)
-		if err == nil {
-			fmt.Printf("Rent amount %T: ", newRentAmount) //fsgsgsgsg
-			updatedProperty.RentAmount = newRentAmount
-		} else {
-			fmt.Println("\033[1;31mInvalid rent amount format.\033[0m") // Red
-			return
-		}
-	}
+	ui.updateRentAmount(&updatedProperty)
 
 	// Update Details based on Property Type
-	switch property.Details.(type) {
-	case entities.CommercialDetails:
-		// Handle Commercial-specific updates
-		fmt.Println("\033[1;31mUpdated details\033[0m", updatedProperty) //gsgsgsgsg
-		if utils.ReadInput("Update Other details (floor area, subtype)? (yes/no): ") == "yes" {
-			newFloorArea := utils.ReadInput("Enter new floor area in sq. feet (leave blank to skip): ")
-			if newFloorArea != "" {
-				updatedProperty.Details = entities.CommercialDetails{
-					FloorArea: newFloorArea,
-					SubType:   updatedProperty.Details.(entities.CommercialDetails).SubType,
-				}
-			}
-
-			newSubType := utils.ReadInput("Enter new subtype (leave blank to skip): ")
-			if newSubType != "" {
-				updatedProperty.Details = entities.CommercialDetails{
-					FloorArea: updatedProperty.Details.(entities.CommercialDetails).FloorArea,
-					SubType:   newSubType,
-				}
-			}
-		}
-
-	case entities.HouseDetails:
-		// Handle House-specific updates
-		if utils.ReadInput("Update house details (number of rooms, furnished category, amenities)? (yes/no): ") == "yes" {
-			newNoOfRooms := utils.ReadInput("Enter new number of rooms (leave blank to skip): ")
-			if newNoOfRooms != "" {
-				var noOfRooms int
-				_, err := fmt.Sscanf(newNoOfRooms, "%d", &noOfRooms)
-				if err == nil {
-					updatedProperty.Details = entities.HouseDetails{
-						NoOfRooms:         noOfRooms,
-						FurnishedCategory: updatedProperty.Details.(entities.HouseDetails).FurnishedCategory,
-						Amenities:         updatedProperty.Details.(entities.HouseDetails).Amenities,
-					}
-				} else {
-					fmt.Println("\033[1;31mInvalid number of rooms format.\033[0m") // Red
-					return
-				}
-			}
-
-			newFurnishedCategory := utils.ReadInput("Enter new furnished category (leave blank to skip): ")
-			if newFurnishedCategory != "" {
-				updatedProperty.Details = entities.HouseDetails{
-					NoOfRooms:         updatedProperty.Details.(entities.HouseDetails).NoOfRooms,
-					FurnishedCategory: newFurnishedCategory,
-					Amenities:         updatedProperty.Details.(entities.HouseDetails).Amenities,
-				}
-			}
-
-			newAmenitiesStr := utils.ReadInput("Enter new amenities (comma separated, leave blank to skip): ")
-			if newAmenitiesStr != "" {
-				newAmenities := strings.Split(newAmenitiesStr, ",")
-				updatedProperty.Details = entities.HouseDetails{
-					NoOfRooms:         updatedProperty.Details.(entities.HouseDetails).NoOfRooms,
-					FurnishedCategory: updatedProperty.Details.(entities.HouseDetails).FurnishedCategory,
-					Amenities:         newAmenities,
-				}
-			}
-		}
-
-	case entities.FlatDetails:
-		// Handle Flat-specific updates
-		if utils.ReadInput("Update flat details (furnished category, amenities, BHK)? (yes/no): ") == "yes" {
-			newFurnishedCategory := utils.ReadInput("Enter new furnished category (leave blank to skip): ")
-			if newFurnishedCategory != "" {
-				updatedProperty.Details = entities.FlatDetails{
-					FurnishedCategory: newFurnishedCategory,
-					Amenities:         updatedProperty.Details.(entities.FlatDetails).Amenities,
-					BHK:               updatedProperty.Details.(entities.FlatDetails).BHK,
-				}
-			}
-
-			newAmenitiesStr := utils.ReadInput("Enter new amenities (comma separated, leave blank to skip): ")
-			if newAmenitiesStr != "" {
-				newAmenities := strings.Split(newAmenitiesStr, ",")
-				updatedProperty.Details = entities.FlatDetails{
-					FurnishedCategory: updatedProperty.Details.(entities.FlatDetails).FurnishedCategory,
-					Amenities:         newAmenities,
-					BHK:               updatedProperty.Details.(entities.FlatDetails).BHK,
-				}
-			}
-
-			newBHK := utils.ReadInput("Enter new BHK (leave blank to skip): ")
-			if newBHK != "" {
-				var bhk int
-				_, err := fmt.Sscanf(newBHK, "%d", &bhk)
-				if err == nil {
-					updatedProperty.Details = entities.FlatDetails{
-						FurnishedCategory: updatedProperty.Details.(entities.FlatDetails).FurnishedCategory,
-						Amenities:         updatedProperty.Details.(entities.FlatDetails).Amenities,
-						BHK:               bhk,
-					}
-				} else {
-					fmt.Println("\033[1;31mInvalid BHK format.\033[0m") // Red
-					return
-				}
-			}
-		}
-
-	default:
-		fmt.Println("Unknown property details type")
-		return
-	}
+	ui.updateDetails(&updatedProperty)
 
 	// Reset approval status if the property was approved
 	if property.IsApprovedByAdmin {
@@ -176,10 +31,84 @@ func (ui *UI) UpdatePropertyUI(property entities.Property) {
 	}
 
 	// Save updated property
-	err := ui.propertyService.UpdateListedProperty(updatedProperty)
-	if err != nil {
+	if err := ui.PropertyService.UpdateListedProperty(updatedProperty); err != nil {
 		fmt.Printf("\033[1;31mError updating property: %v\033[0m\n", err)
 	} else {
 		fmt.Println("\033[1;32mProperty updated successfully.\033[0m")
+	}
+}
+
+// updateTitle updates the title of the property.
+func (ui *UI) updateTitle(property *entities.Property) {
+	newTitle := utils.ReadInput("\nCurrent Title: " + property.Title + "\nEnter new title (leave blank to skip): ")
+	if newTitle != "" {
+		property.Title = newTitle
+	}
+}
+
+// updateAddress updates the address of the property.
+func (ui *UI) updateAddress(property *entities.Property) {
+	fmt.Printf("\nCurrent Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
+
+	newArea := utils.ReadInput("Enter new area (leave blank to skip): ")
+	if newArea != "" {
+		property.Address.Area = newArea
+	}
+
+	newCity := utils.ReadInput("Enter new city (leave blank to skip): ")
+	if newCity != "" {
+		property.Address.City = newCity
+	}
+
+	newState := utils.ReadInput("Enter new state (leave blank to skip): ")
+	if newState != "" {
+		property.Address.State = newState
+	}
+
+	newPincode := utils.ReadPincode()
+	property.Address.Pincode = newPincode
+
+}
+
+// updateRentAmount updates the rent amount of the property.
+func (ui *UI) updateRentAmount(property *entities.Property) {
+	fmt.Println("\nCurrent expected rent amount:", property.RentAmount)
+	newRentAmountStr := utils.ReadInput("Enter new expected rent amount (leave blank to skip): ")
+	if newRentAmountStr != "" {
+		var newRentAmount float64
+		if _, err := fmt.Sscanf(newRentAmountStr, "%f", &newRentAmount); err == nil {
+			property.RentAmount = newRentAmount
+		} else {
+			fmt.Println("\033[1;31mInvalid rent amount format.\033[0m") // Red
+		}
+	}
+}
+
+// updateDetails updates the details of the property based on its type.
+func (ui *UI) updateDetails(property *entities.Property) {
+	switch property.Details.(type) {
+	case entities.CommercialDetails:
+		if utils.ReadInput("\nUpdate commercial property details (floor area, subtype)? (yes/no): ") == "yes" {
+			fmt.Println("Current details:", property.Details.(entities.CommercialDetails))
+			fmt.Println()
+			property.Details = ui.collectCommercialDetails()
+		}
+
+	case entities.HouseDetails:
+		if utils.ReadInput("\nUpdate house details (number of rooms, furnished category, amenities)? (yes/no): ") == "yes" {
+			fmt.Println("Current details:", property.Details.(entities.HouseDetails))
+			fmt.Println()
+			property.Details = ui.collectHouseDetails()
+		}
+
+	case entities.FlatDetails:
+		if utils.ReadInput("\nUpdate flat details (furnished category, amenities, BHK)? (yes/no): ") == "yes" {
+			fmt.Println("Current details:", property.Details.(entities.FlatDetails))
+			fmt.Println()
+			property.Details = ui.collectFlatDetails()
+		}
+
+	default:
+		fmt.Println("\nUnknown property details type")
 	}
 }

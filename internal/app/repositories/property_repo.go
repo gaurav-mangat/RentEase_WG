@@ -49,10 +49,10 @@ func (r *PropertyRepo) GetAllListedProperties(forActiveUserOnly bool) ([]entitie
 	// Apply filter based on the forActiveUserOnly flag
 	if forActiveUserOnly {
 		// Filter for the active user only
-		filter = bson.D{{"landlordusername", utils.ActiveUser}}
+		filter = bson.D{{"landlord_username", utils.ActiveUser}}
 	} else {
 		// No filter, retrieve all properties
-		filter = bson.D{{"isrented", false}}
+		filter = bson.D{{"is_rented", false}}
 	}
 
 	// Query the database with the filter
@@ -104,6 +104,20 @@ func (r *PropertyRepo) GetAllListedProperties(forActiveUserOnly bool) ([]entitie
 	return properties, nil
 }
 
+// DeleteAllListedPropertiesOfaUser deletes all the listed properties for a particular user based on their username.
+func (r *PropertyRepo) DeleteAllListedPropertiesOfaUser(username string) error {
+	// Create a filter to find all properties listed by the given username
+	filter := bson.D{{"landlord_username", username}}
+
+	// Execute the delete operation
+	_, err := r.collection.DeleteMany(context.TODO(), filter)
+	if err != nil {
+		return fmt.Errorf("failed to delete properties for user %s: %w", username, err)
+	}
+
+	return nil
+}
+
 // UpdateListedProperty updates an existing property in the collection.
 func (r *PropertyRepo) UpdateListedProperty(property entities.Property) error {
 
@@ -112,10 +126,9 @@ func (r *PropertyRepo) UpdateListedProperty(property entities.Property) error {
 		{"$set", bson.D{
 			{"title", property.Title},
 			{"address", property.Address},
-			{"landlordusername", property.LandlordUsername},
-			{"rentamount", property.RentAmount},
-			{"isapproved", property.IsApprovedByAdmin},
-			{"isrented", property.IsRented},
+			{"rent_amount", property.RentAmount},
+			{"is_approved_by_admin", property.IsApprovedByAdmin},
+			{"is_rented", property.IsRented},
 			{"details", property.Details},
 		}},
 	}

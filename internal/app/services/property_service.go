@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"rentease/internal/domain/entities"
 	"rentease/internal/domain/interfaces"
@@ -32,7 +31,6 @@ func (ps *PropertyService) GetAllListedProperties(activeUseronly bool) ([]entiti
 // UpdateListedProperty updates a property in the repository.
 func (ps *PropertyService) UpdateListedProperty(property entities.Property) error {
 
-	fmt.Println("In UpdateListedProperty Function ", property.IsRented)
 	// Check if the property is approved before updating
 	if property.IsApprovedByAdmin && !property.IsRented {
 		// Reset approval status if the property was approved
@@ -43,6 +41,7 @@ func (ps *PropertyService) UpdateListedProperty(property entities.Property) erro
 
 // DeleteListedProperty deletes a property from the repository by ID.
 func (ps *PropertyService) DeleteListedProperty(propertyID string) error {
+
 	return ps.propertyRepo.DeleteListedProperty(propertyID)
 }
 
@@ -60,18 +59,20 @@ func (ps *PropertyService) SearchProperties(area, city, state string, pincode, p
 
 	var results []entities.Property
 	for _, property := range properties {
-		if property.PropertyType == propertyType {
+		if property.PropertyType == propertyType && property.IsApprovedByAdmin && !property.IsRented {
 			// Normalize the property address fields
 			propArea := strings.TrimSpace(strings.ToLower(property.Address.Area))
 			propCity := strings.TrimSpace(strings.ToLower(property.Address.City))
 			propState := strings.TrimSpace(strings.ToLower(property.Address.State))
 
-			if (strings.Contains(propArea, area) && strings.Contains(propCity, city) && property.Address.Pincode == pincode) ||
-				(strings.Contains(propCity, city) && property.Address.Pincode == pincode) ||
+			if (strings.Contains(propArea, area) && strings.Contains(propCity, city) && property.Address.Pincode == pincode && strings.Contains(propState, state)) ||
+				(strings.Contains(propCity, city) && property.Address.Pincode == pincode && strings.Contains(propState, state)) ||
 				(property.Address.Pincode == pincode) ||
-				(strings.Contains(propState, state)) {
+				(strings.Contains(propCity, city) && city != "" && strings.Contains(propState, state) && state != "") {
+
 				results = append(results, property)
 			}
+
 		}
 	}
 
@@ -92,6 +93,10 @@ func (ps *PropertyService) FindByID(id primitive.ObjectID) (entities.Property, e
 	}
 
 	return *property, nil
+}
+
+func (ps *PropertyService) DeleteAllListedPropertiesOfaUser(username string) error {
+	return ps.propertyRepo.DeleteAllListedPropertiesOfaUser(username)
 }
 
 // Admin

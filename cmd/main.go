@@ -8,10 +8,12 @@ import (
 )
 
 func main() {
+
+	// Initializing user repo and user service
 	userRepo, _ := repositories.NewUserRepo("mongodb://localhost:27017/users", "RentEase", "users")
 	userService := services.NewUserService(userRepo)
 
-	// Initializing property repoo and property service
+	// Initializing property repo and property service
 	propertyRepo, err := repositories.NewPropertyRepo("mongodb://localhost:27017/properties", "RentEase", "properties")
 	if err != nil {
 		fmt.Println("Error initializing repository:", err)
@@ -19,22 +21,13 @@ func main() {
 	}
 	propertyService := services.NewPropertyService(propertyRepo)
 
+	// Initializing rent request repo and rent request service
 	requestRepo, err := repositories.NewRequestRepo("mongodb://localhost:27017/request", "RentEase", "request")
 	requestService := services.NewRequestService(requestRepo)
-	appUI := ui.NewUI(userService, propertyService, requestService)
-	appUI.AppDashboard()
-	// Calling application dashboard
 
-	//username := "johndoe"
-	//user, err := userService.Findbyuname(username)
-	//if err != nil {
-	//	log.Fatalf("Failed to find user: %v", err)
-	//}
-	//
-	//if (user == entities.User{}) {
-	//	fmt.Println("User not found.")
-	//} else {
-	//	fmt.Printf("Found user: %+v\n", user)
-	//}
+	appUI := ui.NewUI(userService, propertyService, requestService)
+
+	// Calling the AppDashboard
+	appUI.AppDashboard()
 
 }

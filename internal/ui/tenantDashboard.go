@@ -2,17 +2,18 @@ package ui
 
 import (
 	"fmt"
+	"log"
 	"rentease/pkg/utils"
 )
 
 func (ui *UI) TenantDashboardUI() {
 	for {
 		fmt.Println("\033[1;34m\n========================\033[0m") // Blue
-		fmt.Println("\033[1;34mTenant Dashboard\033[0m")           // Blue
+		fmt.Println("\033[1;34m   Tenant Dashboard\033[0m")        // Blue
 		fmt.Println("\033[1;34m========================\033[0m")   // Blue
 		fmt.Println("1. Search Property")
 		fmt.Println("2. Your Wishlist")
-		fmt.Println("3. Request Status")
+		fmt.Println("3. Your Rent Requests' Status")
 		fmt.Println("4. Go Back")
 
 		choice := utils.ReadInput("\nEnter your choice: ")
@@ -21,7 +22,10 @@ func (ui *UI) TenantDashboardUI() {
 		case "1":
 			ui.SearchPropertyUI()
 		case "2":
-			ui.ShowWishlist()
+			err := ui.ShowWishlist()
+			if err != nil {
+				log.Println("Error in showing Wishlist : ", err)
+			}
 
 		case "3":
 			ui.ShowNotifications()

@@ -23,12 +23,13 @@ func NewUserService(userRepo interfaces.UserRepo) *UserService {
 //func (us *UserService) Login(user entities.User) error {
 //}
 
-func (us *UserService) SignUp(user entities.User) bool {
+func (us *UserService) SignUp(user entities.User) error {
 	err := us.userRepo.SaveUser(user)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
-	return true
+	return nil
 
 }
 

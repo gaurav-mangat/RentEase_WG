@@ -4,18 +4,18 @@ import (
 	"rentease/internal/app/services"
 )
 
-// UI struct holds the UserService, bufio.Reader, and other dependencies
+// UI struct holds the UserService, PropertyService and RequestService
 type UI struct {
-	userService     *services.UserService
-	propertyService *services.PropertyService
-	requestService  *services.RequestService
+	UserService     *services.UserService
+	PropertyService *services.PropertyService
+	RequestService  *services.RequestService
 }
 
-// NewUI initializes the UI with the provided services and a bufio.Reader
+// NewUI initializes the UI with the provided services
 func NewUI(userService *services.UserService, propertyService *services.PropertyService, requestService *services.RequestService) *UI {
 	return &UI{
-		userService:     userService,
-		propertyService: propertyService,
-		requestService:  requestService,
+		UserService:     userService,
+		PropertyService: propertyService,
+		RequestService:  requestService,
 	}
 }

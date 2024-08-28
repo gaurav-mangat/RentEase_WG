@@ -7,9 +7,11 @@ import (
 func (ui *UI) AppDashboard() {
 
 	// Decorative border with ANSI colors
+	fmt.Println()
+	fmt.Println()
 	fmt.Println("\033[1;36m******************************************\033[0m")
 	fmt.Println("\033[1;36m*                                        *\033[0m")
-	fmt.Println("\033[1;36m*            \033[1;32mWelcome to RentEase\033[1;36m         *\033[0m")
+	fmt.Println("\033[1;36m*         \033[1;32mWelcome to RentEase\033[1;36m            *\033[0m")
 	fmt.Println("\033[1;36m*  \033[1;32mYour one-stop solution for renting!\033[1;36m   *\033[0m")
 	fmt.Println("\033[1;36m*                                        *\033[0m")
 	fmt.Println("\033[1;36m******************************************\033[0m")
@@ -37,6 +39,7 @@ func (ui *UI) AppDashboard() {
 	switch choice {
 	case 1:
 		ui.LoginDashboard()
+		ui.AppDashboard()
 	case 2:
 		ui.SignUpDashboard()
 	case 3:

@@ -11,8 +11,11 @@ import (
 	"strings"
 )
 
-// Creating an active user
+// Creating an active user (only username)
 var ActiveUser string
+
+// Creating an active uesr object
+var ActiveUserobject entities.User
 
 // Create a buffered reader
 var Reader *bufio.Reader
@@ -31,24 +34,6 @@ func ReadInput(prompt string) string {
 		return ""
 	}
 	return strings.TrimSpace(input)
-}
-
-// Function to check for single word username
-func IsValidInput2(input string) bool {
-	if strings.Contains(input, " ") {
-		fmt.Println("\033[1;31m\nInvalid Input\033[0m")
-		fmt.Println("\nTry again....")
-		return false
-	}
-	return true
-}
-
-func IsValidInput(input string) bool {
-	if strings.Contains(input, " ") {
-
-		return false
-	}
-	return true
 }
 
 func HashPassword(password string) (string, error) {
@@ -73,20 +58,7 @@ func IsValidPassword(password string) bool {
 	return len(password) > 8 && hasUpper(password) && hasLower(password) && hasNumber(password) && hasSpecial(password)
 }
 
-func IsValidMobileNumber(number string) bool {
-	match, _ := regexp.MatchString(`^[6-9]\d{9}$`, number)
-	return match
-}
-
-// isValidEmail validates the email format using a regular expression
-func IsValidEmail(email string) bool {
-	// Basic email validation regex
-	const emailRegex = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-	re := regexp.MustCompile(emailRegex)
-	return re.MatchString(email)
-}
-
-// Reading pincode
+// ReadPincode read the pincode and makes it mandatory to enter pincode
 func ReadPincode() int {
 	var pincode int
 
@@ -110,7 +82,7 @@ func ReadPincode() int {
 // DisplayProperty prints the details of a single property in a structured format.
 func DisplayProperty(property entities.Property) {
 
-	fmt.Print("Property Type:  ")
+	fmt.Print("\nProperty Type:  ")
 	switch property.PropertyType {
 	case 1:
 		fmt.Println("Commercial")
@@ -124,8 +96,8 @@ func DisplayProperty(property entities.Property) {
 
 	fmt.Printf("Property Title: %s\n", property.Title)
 	fmt.Printf("Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
-	fmt.Printf("Is Approved by Admin : %v\n", property.IsApprovedByAdmin)
-	fmt.Printf("Expected Rent Amount: %f\n", property.RentAmount)
+	fmt.Printf("Expected Rent Amount: %.2f\n", property.RentAmount)
+	fmt.Println("Is Property approved : ", property.IsApprovedByAdmin)
 
 	fmt.Println("Other Details:")
 
@@ -142,7 +114,8 @@ func DisplayProperty(property entities.Property) {
 		fmt.Printf("  Amenities: %v\n", details.Amenities)
 		fmt.Printf("  BHK: %d\n", details.BHK)
 	default:
-		fmt.Println("  Unknown property details")
+		fmt.Println(details)
+		//fmt.Println("  Unknown property details")
 	}
 	fmt.Println()
 
@@ -156,19 +129,6 @@ func DisplayProperties(properties []entities.Property) {
 	}
 }
 
-func DisplayPropertyshortInfo(properties []entities.Property) {
-	// Display the list of properties with short info
-	for i, property := range properties {
-		fmt.Printf("Property #%d:\n", i+1)
-		fmt.Printf("  Title: %s\n", property.Title)
-		fmt.Printf("  Rent Amount: %f\n", property.RentAmount)
-		fmt.Printf("  Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
-		fmt.Println()
-	}
-
-	//Continuously prompt the user to select a property number for more details until valid input is given
-}
-
 func GetHiddenInput(prompt string) string {
 	fmt.Print(prompt)
 	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
@@ -178,4 +138,22 @@ func GetHiddenInput(prompt string) string {
 	}
 	fmt.Println() // Print a newline after input
 	return strings.TrimSpace(string(bytePassword))
+}
+
+// ReadBHKInput takes BHK input between 1 - 6
+func ReadBHKInput() (int, error) {
+	var bhk int
+	for {
+		fmt.Print("Enter BHK (1-6): ")
+		_, err := fmt.Scanf("%d", &bhk)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a valid number.")
+			continue
+		}
+		if bhk < 1 || bhk > 6 {
+			fmt.Println("BHK must be between 1 and 6.")
+			continue
+		}
+		return bhk, nil
+	}
 }

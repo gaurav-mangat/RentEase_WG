@@ -2,41 +2,41 @@
 RentEase is a CLI-based property rental management application that allows landlords to list properties, tenants to search and apply for properties, and admins to manage the platform. The application is built using Go and MongoDB to ensure robust and scalable performance.
 
 # Features
- ✨ Landlord Dashboard
-  
+✨ Landlord Dashboard
+
 List Properties: Add new properties to be rented out.
 
 Manage Properties: Update or view existing properties.
 
 View Tenant Requests: Review and approve tenant applications.
 
- 
- ✨ Tenant Dashboard
-  
+
+✨ Tenant Dashboard
+
 Search Properties: Look for properties based on location, type, and other criteria.
 
 Wishlist: Add interesting properties to your wishlist.
 
 Apply for a Property: Submit a request to rent a property.
 
- 
- ✨ Admin Dashboard
+
+✨ Admin Dashboard
 
 Approve Listings: Review and approve new property listings.
 
 Manage Users: View, approve, or delete user accounts.
 
- 
- ✨ User Authentication
+
+✨ User Authentication
 
 Secure login system with support for landlords, tenants, and admins.
 
 # Usage
 Upon running the application, you'll be presented with a dashboard that offers the following options:
 
-  Login: Access your existing account.
+Login: Access your existing account.
 
-  Signup: Create a new account.
+Signup: Create a new account.
 
 After Login/Signup
 
@@ -45,25 +45,25 @@ Once logged in or signed up, you'll be directed to a dashboard where you can nav
 
 * As a Landlord
 
-    List Property: Add new properties to be rented out.
+  List Property: Add new properties to be rented out.
 
-    Manage Properties: Update or view existing properties.
+  Manage Properties: Update or view existing properties.
 
-    View Tenant Requests: Review and approve tenant applications.
+  View Tenant Requests: Review and approve tenant applications.
 
 * As a Tenant
 
-    Search Properties: Look for properties based on location, type, and other criteria.
+  Search Properties: Look for properties based on location, type, and other criteria.
 
-    Wishlist: Add interesting properties to your wishlist.
+  Wishlist: Add interesting properties to your wishlist.
 
 Apply for a Property: Submit a request to rent a property.
 
 * As an Admin
 
-    Approve Listings: Review and approve new property listings.
+  Approve Listings: Review and approve new property listings.
 
-    Manage Users: View, approve, or delete user accounts.
+  Manage Users: View, approve, or delete user accounts.
 
 # Code Snippets
 
