@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -12,31 +11,43 @@ func TestIsInputSpaceFree(t *testing.T) {
 		expected bool
 	}{
 		{
-			name:     "Single Word",
-			input:    "username",
+			name:     "Input without spaces",
+			input:    "NoSpacesHere",
 			expected: true,
 		},
 		{
-			name:     "Multiple Words",
-			input:    "user name",
+			name:     "Input with a space",
+			input:    "Has Space",
 			expected: false,
 		},
 		{
-			name:     "Empty String",
+			name:     "Empty string",
 			input:    "",
 			expected: true,
 		},
 		{
-			name:     "Leading and Trailing Spaces",
-			input:    " username ",
+			name:     "Input with leading space",
+			input:    " LeadingSpace",
+			expected: false,
+		},
+		{
+			name:     "Input with trailing space",
+			input:    "TrailingSpace ",
+			expected: false,
+		},
+		{
+			name:     "Input with multiple spaces",
+			input:    "Multiple  Spaces",
 			expected: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := IsSingleWordUsername(tt.input)
-			assert.Equal(t, tt.expected, result)
+			result := IsInputSpaceFree(tt.input)
+			if result != tt.expected {
+				t.Errorf("IsInputSpaceFree(%q) = %v; expected %v", tt.input, result, tt.expected)
+			}
 		})
 	}
 }

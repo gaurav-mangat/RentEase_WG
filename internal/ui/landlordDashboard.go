@@ -4,25 +4,27 @@ import (
 	"fmt"
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
+	"strconv"
 )
 
 func (ui *UI) landlordDashboard() {
 	for {
 		// Display the landlord dashboard header
-		fmt.Println("\n\n\n\033[1;36m----------------------------------------------------------\033[0m") // Sky blue
-		fmt.Println("\033[1;31m              LANDLORD DASHBOARD                        \033[0m")         // Red bold
-		fmt.Println("\033[1;36m-----------------------------------------------------------\033[0m")      // Sky blue
+		fmt.Println("\n\n\n\033[1;36m-------------------------------------------------\033[0m")  // Sky blue
+		fmt.Println("\033[1;33m              LANDLORD DASHBOARD                        \033[0m") // Red bold
+		fmt.Println("\033[1;36m-------------------------------------------------\033[0m")        // Sky blue
 
 		// Display the options available to the landlord
-		fmt.Println("		\033[1;32m1. List Your Property\033[0m")              // Green
-		fmt.Println("		\033[1;32m2. View and Manage Listed Property\033[0m") // Green
-		fmt.Println("		\033[1;32m3. Manage Rent Requests\033[0m")            // Green
-		fmt.Println("		\033[1;31m4. Back to Main Dashboard\033[0m")          // Red
-		fmt.Print("\nEnter your choice: ")
+		fmt.Println("     \033[1;32m1. List Your Property\033[0m")              // Green
+		fmt.Println("     \033[1;32m2. View and Manage Listed Property\033[0m") // Green
+		fmt.Println("     \033[1;32m3. Manage Rent Requests\033[0m")            // Green
+		fmt.Println("     \033[1;32m4. Back to Main Dashboard\033[0m")          // Red
 
 		// Read user input for the selected option
 		var choice int
-		_, err := fmt.Scanln(&choice)
+
+		choiceTemp := utils.ReadInput("\nEnter your choice: ")
+		choice, err := strconv.Atoi(choiceTemp)
 		if err != nil {
 			fmt.Printf("\033[1;31mError reading input: %v\033[0m\n", err) // Red
 			continue
@@ -70,9 +72,10 @@ func (ui *UI) viewAndManageListedProperties(isViewingProfile bool) {
 	}
 
 	// Display properties with their respective index
-	ui.displayPropertiesWithIndex(listedProperties)
+	utils.DisplayProperties(listedProperties)
 
 	if !isViewingProfile {
+		fmt.Println()
 		// Allow user to select a property by index
 		index := ui.getPropertySelection(len(listedProperties))
 		if index == 0 {
@@ -90,19 +93,11 @@ func (ui *UI) displayError(action string, err error) {
 	fmt.Printf("\033[1;31mError %s: %v\033[0m\n", action, err)
 }
 
-// displayPropertiesWithIndex shows a list of properties with index numbers for selection.
-func (ui *UI) displayPropertiesWithIndex(properties []entities.Property) {
-	for i, property := range properties {
-		fmt.Printf("\n%d. \n", i+1)
-		utils.DisplayProperty(property)
-	}
-}
-
 // getPropertySelection prompts the user to select a property by index.
 func (ui *UI) getPropertySelection(propertyCount int) int {
-	fmt.Print("\033[1;32mSelect a property to update or delete (enter 0 to go back):  \033[0m")
 	var index int
-	_, err := fmt.Scanln(&index)
+	indexTemp := utils.ReadInput("\033[1;32mSelect a property to update or delete (enter 0 to go back):  \033[0m")
+	index, err := strconv.Atoi(indexTemp)
 	if err != nil || index < 0 || index > propertyCount {
 		// Handle invalid input by asking again
 		fmt.Printf("\033[1;31mInvalid choice. Please select a valid option.\033[0m\n")
@@ -113,18 +108,22 @@ func (ui *UI) getPropertySelection(propertyCount int) int {
 
 // handlePropertyAction allows the landlord to either update or delete the selected property.
 func (ui *UI) handlePropertyAction(property entities.Property) {
+
 	fmt.Println("\033[1;33m\nSelected Property:\033[0m")
-	utils.DisplayProperty(property)
+	fmt.Println()
+	property2 := []entities.Property{}
+	property2 = append(property2, property)
+	utils.DisplayProperties(property2)
 
 	// Prompt the user to choose an action (update/delete) on the selected property
 	fmt.Println("\033[1;32mDo you want to update or delete this property?\033[0m")
 	fmt.Println("\033[1;32m1. Update\033[0m")
 	fmt.Println("\033[1;32m2. Delete\033[0m")
 	fmt.Println("\033[1;31m3. Go Back\033[0m")
-	fmt.Print("\nEnter your choice: ")
 
 	var action int
-	_, err := fmt.Scanln(&action)
+	actionTemp := utils.ReadInput("\nEnter your choice: ")
+	action, err := strconv.Atoi(actionTemp)
 	if err != nil || action < 1 || action > 3 {
 		// Handle invalid action by asking again
 		fmt.Printf("\033[1;31mInvalid choice. Please select a valid option.\033[0m\n")

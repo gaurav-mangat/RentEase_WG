@@ -2,8 +2,11 @@ package ui
 
 import (
 	"fmt"
+	"github.com/olekukonko/tablewriter"
+	"os"
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
+	"strconv"
 )
 
 // RentRequestsDashboardForLandlord handles the dashboard for landlords to manage property rental requests.
@@ -75,6 +78,15 @@ func (ui *UI) fetchRequestsForLandlord(username string) ([]entities.Request, err
 // displayRequests prints the details of all rental requests to the console.
 func (ui *UI) displayRequests(requests []entities.Request) {
 	fmt.Println("\n\033[1;34mProperty Requests\033[0m") // Blue
+
+	// Create a new tablewriter table
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"#", "Property Title", "Tenant Name", "Phone", "Email", "Address", "Status"})
+	table.SetBorder(true)        // Enable border
+	table.SetRowLine(true)       // Enable row separator
+	table.SetColMinWidth(5, 50)  // Set a minimum width for the address column
+	table.SetAutoWrapText(false) // Disable text wrapping
+
 	for i, req := range requests {
 		// Fetch property details using PropertyID
 		property, err := ui.PropertyService.FindByID(req.PropertyID)
@@ -90,30 +102,40 @@ func (ui *UI) displayRequests(requests []entities.Request) {
 			continue
 		}
 
-		// Print request details to the console
-		fmt.Printf("%d. Property Title: %s \n", i+1, property.Title)
-		fmt.Printf("   Tenant: %s\n", tenant.Name)
-		fmt.Printf("   Phone: %s\n", tenant.PhoneNumber)
-		fmt.Printf("   Email: %s\n", tenant.Email)
-		fmt.Printf("   Address: %s\n", tenant.Address)
-		fmt.Printf("   Status: %s\n", req.RequestStatus)
-		fmt.Println()
+		// Concatenate the address into a single line, ensuring it fits the column
+		address := fmt.Sprintf("%s", tenant.Address)
+
+		// Add the row to the table
+		table.Append([]string{
+			fmt.Sprintf("%d", i+1),
+			property.Title,
+			tenant.Name,
+			tenant.PhoneNumber,
+			tenant.Email,
+			address,
+			req.RequestStatus,
+		})
 	}
+
+	// Render the table
+	table.Render()
 }
 
 // getRequestActionChoice prompts the user to enter the number of the request they want to act on.
 func (ui *UI) getRequestActionChoice(maxOptions int) int {
-	fmt.Print("\nEnter the request number to act on (or 0 to exit): ")
+
 	var choice int
-	fmt.Scan(&choice)
+	choiceTemp := utils.ReadInput("\nEnter the request number to act on (or 0 to exit): ")
+	choice, _ = strconv.Atoi(choiceTemp)
 	return choice
 }
 
 // getRequestStatusChoice prompts the user to select the new status for the request.
 func (ui *UI) getRequestStatusChoice() string {
-	fmt.Print("Enter new status (1 for Accepted, 2 for Rejected): ")
+
 	var statusChoice int
-	fmt.Scan(&statusChoice)
+	choiceTemp := utils.ReadInput("Enter new status (1 for Accepted, 2 for Rejected): ")
+	statusChoice, _ = strconv.Atoi(choiceTemp)
 
 	switch statusChoice {
 	case 1:

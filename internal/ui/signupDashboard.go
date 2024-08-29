@@ -5,17 +5,19 @@ import (
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
 	"rentease/pkg/validation"
+	"strconv"
 )
 
 func (ui *UI) SignUpDashboard() {
 	// Display signup form and collect user data
 	fmt.Println()
 	fmt.Println("\033[1;36m----------------------------------------------------------------\033[0m")    // Sky blue
-	fmt.Println("\033[1;31m                       SIGN UP FORM                                \033[0m") // Red bold
+	fmt.Println("\033[1;35m                       SIGN UP FORM                                \033[0m") // Red bold
 	fmt.Println("\033[1;36m----------------------------------------------------------------\033[0m")
 	fmt.Println()
 
 	// Get username
+
 	username := ui.promptForUsername()
 
 	// Get password
@@ -85,25 +87,46 @@ func (ui *UI) promptForUsername() string {
 }
 
 func (ui *UI) promptForPassword() string {
-	var password string
+	var password, confirmPassword string
 	valid := false
+
 	for !valid {
-		password = utils.ReadInput("\033[1;34m\nEnter password (min 9 chars, include lowercase, uppercase, numbers, special): \033[0m")
+		var err error
+		password, err = utils.GetHiddenInput("\033[1;34m\nEnter password (min 9 chars, include lowercase, uppercase, numbers, special): \033[0m")
+		if err != nil {
+			fmt.Println("Error reading password:", err)
+			return ""
+		}
+
+		// Confirm the password
+		confirmPassword, err = utils.GetHiddenInput("\033[1;34m\nConfirm password: \033[0m")
+		if err != nil {
+			fmt.Println("Error reading confirmation password:", err)
+			return ""
+		}
+
+		if password != confirmPassword {
+			fmt.Println("\033[1;31m\nPasswords do not match. Please try again.\033[0m")
+			continue
+		}
+
 		if validation.IsInputSpaceFree(password) && utils.IsValidPassword(password) {
 			valid = true
 		} else {
 			fmt.Println("\033[1;31m\nPassword does not meet complexity requirements.\nPlease enter a valid password.\033[0m")
 		}
 	}
+
 	return password
 }
 
 func (ui *UI) promptForAge() int {
+
 	var age int
 	valid := false
 	for !valid {
-		fmt.Print("\u001B[1;34m\nEnter your age: \033[0m")
-		fmt.Scanln(&age)
+		ageTemp := utils.ReadInput("\033[1;34m\nEnter your age:\033[0m")
+		age, _ = strconv.Atoi(ageTemp)
 		if age >= 18 && age <= 125 {
 			valid = true
 		} else if age > 0 && age < 18 {
@@ -147,8 +170,8 @@ func (ui *UI) promptForEmail() string {
 func (ui *UI) promptPostSignupActions() {
 	fmt.Println("\n\nPress 1 to Login \nPress 2 to Exit")
 	var choice int
-	fmt.Print("\033[1;34m\nEnter your choice: \033[0m") // Blue bold
-	_, err := fmt.Scan(&choice)
+	choiceTemp := utils.ReadInput("\033[1;35mEnter your choice: \033[0m")
+	choice, err := strconv.Atoi(choiceTemp)
 	if err != nil {
 		fmt.Printf("\033[1;31mError reading choice: %v\033[0m\n", err) // Red bold
 		return

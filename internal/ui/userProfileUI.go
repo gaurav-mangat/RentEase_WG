@@ -10,7 +10,7 @@ func (ui *UI) userProfile() {
 
 	// Display the dashboard
 	fmt.Println("\033[1;36m----------------------------------------------------------------\033[0m")  // Sky blue
-	fmt.Println("\033[1;31m                          YOUR PROFILE                           \033[0m") // Red bold
+	fmt.Println("\033[1;35m                          YOUR PROFILE                           \033[0m") // Red bold
 	fmt.Println("\033[1;36m----------------------------------------------------------------\033[0m")
 	fmt.Println()
 	ui.DisplayUserInfo(utils.ActiveUserobject)
@@ -21,11 +21,11 @@ func (ui *UI) userProfile() {
 }
 
 func (ui *UI) DisplayUserInfo(ActiveUserobject entities.User) {
-	fmt.Println("			Username     : ", ActiveUserobject.Username)
-	fmt.Println("			Full Name    : ", ActiveUserobject.Name)
-	fmt.Println("			Age          : ", ActiveUserobject.Age)
-	fmt.Println("			Address      : ", ActiveUserobject.Address)
-	fmt.Println("			Phone Number : ", ActiveUserobject.PhoneNumber)
-	fmt.Println("			Email        : ", ActiveUserobject.Email)
+	fmt.Println("		Username     : ", ActiveUserobject.Username)
+	fmt.Println("		Full Name    : ", ActiveUserobject.Name)
+	fmt.Println("		Age          : ", ActiveUserobject.Age)
+	fmt.Println("		Address      : ", ActiveUserobject.Address)
+	fmt.Println("		Phone Number : ", ActiveUserobject.PhoneNumber)
+	fmt.Println("		Email        : ", ActiveUserobject.Email)
 
 }

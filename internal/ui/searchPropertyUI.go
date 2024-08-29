@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
+	"strconv"
 )
 
 // SearchPropertyUI handles the user interface for searching properties.
@@ -16,14 +17,58 @@ func (ui *UI) SearchPropertyUI() {
 	// Collect property type from the user
 	propertyType := ui.promptForPropertyType()
 
-	// Collect additional search criteria
-	area := utils.ReadInput("Enter locality (leave blank to skip): ")
-	city := utils.ReadInput("Enter city (leave blank to skip): ")
-	state := utils.ReadInput("Enter state (leave blank to skip): ")
-	pincode := utils.ReadPincode()
+	fmt.Println("\nProvide the address ")
+	// Prompt user to enter pincode
+	pincode := utils.ReadPincode(1)
+
+	// Retrieve address details based on pincode
+	address, err := utils.GetAddressFromPincode(pincode)
+	if err != nil {
+		if pincode != 555555 {
+			fmt.Println("\nError fetching address details:", err)
+		}
+		fmt.Println("Please enter the full address details manually.")
+
+		// Collect full address details from the user
+		address = entities.Address{
+			Area:    utils.ReadInput("    Enter locality: "),
+			City:    utils.ReadInput("    Enter city: "),
+			State:   utils.ReadInput("    Enter state: "),
+			Pincode: pincode,
+		}
+	} else {
+		// Display fetched address details to the user
+		fmt.Printf("\nFetched Address Details:\n")
+		fmt.Printf("    Locality: %s\n", address.Area)
+		fmt.Printf("    City: %s\n", address.City)
+		fmt.Printf("    State: %s\n", address.State)
+		fmt.Printf("    Pincode: %d\n", address.Pincode)
+
+		// Prompt the user to confirm or edit the address details
+		fmt.Println("\nIf you want to update any field, enter the new value. Leave it blank to keep the current value.")
+
+		// Collect updated address details from the user
+		area := utils.ReadInput(fmt.Sprintf("    Enter locality (current: %s): ", address.Area))
+		if area != "" {
+			address.Area = area
+		}
+
+		city := utils.ReadInput(fmt.Sprintf("    Enter city (current: %s): ", address.City))
+		if city != "" {
+			address.City = city
+		}
+
+		state := utils.ReadInput(fmt.Sprintf("    Enter state (current: %s): ", address.State))
+		if state != "" {
+			address.State = state
+		}
+
+		// Pincode remains unchanged since it was used to fetch the address
+		address.Pincode = pincode
+	}
 
 	// Search for properties based on the criteria
-	properties, err := ui.PropertyService.SearchProperties(area, city, state, pincode, propertyType)
+	properties, err := ui.PropertyService.SearchProperties(address.Area, address.City, address.State, pincode, propertyType)
 	if err != nil {
 		fmt.Printf("\033[1;31mError searching properties: %v\033[0m\n", err) // Red
 		return
@@ -37,7 +82,7 @@ func (ui *UI) SearchPropertyUI() {
 
 	fmt.Println("\n\033[1;34mSearch Results\033[0m")         // Blue
 	fmt.Println("\033[1;34m========================\033[0m") // Blue
-	ui.DisplayPropertyShortInfo(properties, nil)
+	ui.DisplayPropertyShortInfo(properties)
 
 	// Allow the user to view property details and perform actions
 	ui.handlePropertyActions(properties)
@@ -47,8 +92,9 @@ func (ui *UI) SearchPropertyUI() {
 func (ui *UI) promptForPropertyType() int {
 	var propertyType int
 	for {
-		fmt.Print("Enter property type (1. Commercial, 2. House, 3. Flat): ")
-		_, err := fmt.Scanf("%d", &propertyType)
+		propertyTypeTemp := utils.ReadInput("Enter property type (1. Commercial, 2. House, 3. Flat): ")
+		var err error
+		propertyType, err = strconv.Atoi(propertyTypeTemp)
 		if err != nil || propertyType < 1 || propertyType > 3 {
 			fmt.Println("\033[1;31mInvalid input. Please enter a valid property type (1, 2, or 3).\033[0m") // Red
 			continue
@@ -61,9 +107,9 @@ func (ui *UI) promptForPropertyType() int {
 // handlePropertyActions allows the user to perform actions on a selected property.
 func (ui *UI) handlePropertyActions(properties []entities.Property) {
 	for {
-		fmt.Print("Enter the property number to see more details (or 0 to exit): ")
 		var choice int
-		fmt.Scan(&choice)
+		choiceTemp := utils.ReadInput("Enter the property number to see more details (or 0 to exit): ")
+		choice, err := strconv.Atoi(choiceTemp)
 
 		if choice == 0 {
 			break
@@ -114,8 +160,8 @@ func (ui *UI) performPropertyAction(prop entities.Property) string {
 		fmt.Println("4. Back to Tenant Dashboard")
 
 		var action int
-		fmt.Print("\nEnter your choice: ")
-		_, _ = fmt.Scanln(&action)
+		actionTemp := utils.ReadInput("\nEnter your choice: ")
+		action, _ = strconv.Atoi(actionTemp)
 
 		switch action {
 		case 1:

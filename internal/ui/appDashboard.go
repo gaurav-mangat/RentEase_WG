@@ -2,6 +2,8 @@ package ui
 
 import (
 	"fmt"
+	"rentease/pkg/utils"
+	"strconv"
 )
 
 func (ui *UI) AppDashboard() {
@@ -23,29 +25,32 @@ func (ui *UI) AppDashboard() {
 	fmt.Println("\033[1;34m-----------------------------\033[0m")
 	fmt.Println("\033[1;34m 2. \033[1;33m📝 Sign Up\033[0m")
 	fmt.Println("\033[1;34m-----------------------------\033[0m")
-	fmt.Println("\033[1;34m 3. \033[1;31m❌ Exit\033[0m")
+	fmt.Println("\033[1;34m 3. \033[1;31m❌  Exit\033[0m")
 	fmt.Println("\033[1;34m==================================\033[0m")
 	fmt.Println()
 
-	var choice int
-
-	fmt.Print("\033[1;35mEnter your choice: \033[0m")
-	_, err := fmt.Scanf("%d", &choice)
+	// Get user's choice
+	choiceTemp := utils.ReadInput("\033[1;35mEnter your choice: \033[0m")
+	choice, err := strconv.Atoi(choiceTemp)
 	if err != nil {
-		fmt.Println("\033[1;31m⚠️ Error reading input:\033[0m", err)
+		fmt.Println("\033[1;31m🚫 Invalid input. Please enter a valid number.\033[0m")
+		ui.AppDashboard() // Retry if input is not a valid integer
 		return
 	}
 
+	// Process the user's choice
 	switch choice {
 	case 1:
 		ui.LoginDashboard()
-		ui.AppDashboard()
+		ui.AppDashboard() // Show the dashboard again after login
 	case 2:
 		ui.SignUpDashboard()
+		ui.AppDashboard() // Show the dashboard again after signup
 	case 3:
 		fmt.Println("\n\033[1;32mThank you for using RentEase! See you next time. 👋\033[0m")
 		return
 	default:
 		fmt.Println("\n\033[1;31m🚫 Invalid choice, please try again.\033[0m")
+		ui.AppDashboard() // Retry if the choice is out of range
 	}
 }

@@ -2,9 +2,12 @@ package ui
 
 import (
 	"fmt"
+	"github.com/olekukonko/tablewriter"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"os"
 	"rentease/internal/domain/entities"
 	"rentease/pkg/utils"
+	"strconv"
 )
 
 // ShowWishlist displays the properties in the currently active user's wishlist.
@@ -31,7 +34,7 @@ func (ui *UI) ShowWishlist() error {
 		return err
 	}
 
-	ui.DisplayPropertyShortInfo(wishListProperties, nil)
+	ui.DisplayPropertyShortInfo(wishListProperties)
 
 	// Allow the user to view property details or perform actions
 	return ui.handleWishlistActions(user, wishListProperties)
@@ -54,9 +57,9 @@ func (ui *UI) getPropertiesFromWishlist(wishlist []primitive.ObjectID) ([]entiti
 // handleWishlistActions handles user actions on properties in the wishlist.
 func (ui *UI) handleWishlistActions(user entities.User, properties []entities.Property) error {
 	for {
-		fmt.Print("\nEnter the property number to see more details (or 0 to exit, -1 to remove a property, 1 to request a property): ")
 		var choice int
-		fmt.Scan(&choice)
+		choiceTemp := utils.ReadInput("\nEnter the property number to see more details (or 0 to exit, -1 to remove a property, 1 to request a property): ")
+		choice, _ = strconv.Atoi(choiceTemp)
 
 		switch choice {
 		case 0:
@@ -84,9 +87,9 @@ func (ui *UI) handleWishlistActions(user entities.User, properties []entities.Pr
 
 // requestPropertyFromWishlist processes the request to rent a property from the wishlist.
 func (ui *UI) requestPropertyFromWishlist(user entities.User, properties []entities.Property) error {
-	fmt.Print("Enter the property number to request from wishlist: ")
 	var choice int
-	fmt.Scan(&choice)
+	choiceTemp := utils.ReadInput("Enter the property number to request from wishlist: ")
+	choice, _ = strconv.Atoi(choiceTemp)
 
 	if choice < 1 || choice > len(properties) {
 		fmt.Println("\033[1;31mInvalid property number.\033[0m") // Red
@@ -124,9 +127,9 @@ func removePropertyFromList(wishlist []primitive.ObjectID, propertyID primitive.
 
 // removePropertyFromWishlist processes the removal of a property from the wishlist.
 func (ui *UI) removePropertyFromWishlist(user entities.User, properties []entities.Property) error {
-	fmt.Print("Enter the property number to remove from wishlist: ")
 	var choice int
-	fmt.Scan(&choice)
+	choiceTemp := utils.ReadInput("Enter the property number to remove from wishlist: ")
+	choice, _ = strconv.Atoi(choiceTemp)
 
 	if choice < 1 || choice > len(properties) {
 		fmt.Println("\033[1;31mInvalid property number.\033[0m") // Red
@@ -164,24 +167,33 @@ func (ui *UI) displayPropertyDetails(prop entities.Property) {
 	fmt.Println()
 }
 
-// DisplayPropertyShortInfo displays a brief summary of each property and this is also used for showNotification for sent requests
-func (ui *UI) DisplayPropertyShortInfo(properties []entities.Property, requests []entities.Request) {
-	for i, property := range properties {
-		// This if condition is useful when property for request is deleted by the landlord
-		if property.Title != "" && property.Address.Pincode != 0 {
-			fmt.Printf("Property #%d:\n", i+1)
-			fmt.Printf("  Title: %s\n", property.Title)
-			fmt.Printf("  Rent Amount: %.2f\n", property.RentAmount)
-			fmt.Printf("  Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
-			if requests != nil {
-				fmt.Printf("Status: %s\n", requests[i].RequestStatus)
-				if requests[i].RequestStatus == "accepted" {
-					fmt.Println("\033[32mCongratulations! Your request has been accepted!\033[0m")
+// DisplayPropertyShortInfo prints property information in a tabular format
+func (ui *UI) DisplayPropertyShortInfo(properties []entities.Property) {
+	// Create a new table writer
+	table := tablewriter.NewWriter(os.Stdout)
 
-					fmt.Println()
-				}
-			}
-			fmt.Println()
-		}
+	// Set the header for the table
+	table.SetHeader([]string{"No.", "Title", "Rent Amount", "Address"})
+
+	// Set column width and auto-wrap
+	table.SetAutoWrapText(false)
+
+	// Populate the table with property data
+	for i, property := range properties {
+
+		address := fmt.Sprintf("%s, %s, %s, %d", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
+
+		// Append data to the table
+		table.Append([]string{
+			fmt.Sprintf("%d", i+1),
+			property.Title,
+			fmt.Sprintf("%.2f", property.RentAmount),
+			address,
+		})
+
 	}
+
+	// Render the table
+	table.SetBorder(true)
+	table.Render()
 }

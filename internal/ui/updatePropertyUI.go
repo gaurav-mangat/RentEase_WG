@@ -46,28 +46,21 @@ func (ui *UI) updateTitle(property *entities.Property) {
 	}
 }
 
-// updateAddress updates the address of the property.
+// updateAddress updates the address of the property using the GetAddress function.
 func (ui *UI) updateAddress(property *entities.Property) {
 	fmt.Printf("\nCurrent Address: %s, %s, %s, %d\n", property.Address.Area, property.Address.City, property.Address.State, property.Address.Pincode)
 
-	newArea := utils.ReadInput("Enter new area (leave blank to skip): ")
-	if newArea != "" {
-		property.Address.Area = newArea
+	// Prompt the user to enter the new pincode and get the updated address
+	updatedAddress, err := ui.GetAddress()
+	if err != nil {
+		fmt.Println("Error updating address:", err)
+		fmt.Println("Address update was not successful.")
+		return
 	}
 
-	newCity := utils.ReadInput("Enter new city (leave blank to skip): ")
-	if newCity != "" {
-		property.Address.City = newCity
-	}
-
-	newState := utils.ReadInput("Enter new state (leave blank to skip): ")
-	if newState != "" {
-		property.Address.State = newState
-	}
-
-	newPincode := utils.ReadPincode()
-	property.Address.Pincode = newPincode
-
+	// Update the property's address with the new details
+	property.Address = updatedAddress
+	fmt.Println("Address updated successfully.")
 }
 
 // updateRentAmount updates the rent amount of the property.
